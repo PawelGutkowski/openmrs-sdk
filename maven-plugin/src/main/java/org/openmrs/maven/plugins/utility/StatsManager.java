@@ -37,9 +37,9 @@ public class StatsManager {
         if(sdkStatistics.getStatsEnabled() && wizard.isInteractiveMode()){
             String goal = getGoal();
             if (StringUtils.isNotBlank(goal)) {
-                sdkStatistics.incrementGoal(goal);
+/*                sdkStatistics.incrementGoal(goal);
                 sdkStatistics.setLastUsed();
-                sdkStatistics.save();
+                sdkStatistics.save();*/
             }
             sdkStatistics.sendReport(wizard);
         }
