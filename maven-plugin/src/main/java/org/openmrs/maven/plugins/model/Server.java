@@ -5,6 +5,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.openmrs.maven.plugins.bintray.BintrayId;
+import org.openmrs.maven.plugins.utility.DistroHelper;
 import org.openmrs.maven.plugins.utility.Project;
 import org.openmrs.maven.plugins.utility.SDKConstants;
 
@@ -133,16 +134,32 @@ public class Server {
         Server.serversPath = serversPath;
     }
 
-    public static boolean hasServerConfig(File dir) {
+    public static boolean hasServerConfig(File dir) throws MojoExecutionException {
         if (dir.exists()) {
-            File properties = new File(dir, SDKConstants.OPENMRS_SERVER_PROPERTIES);
-            if(!properties.exists()){       //This is for backwards compatibility with SDK 2.x and below
+            File serverProperties = new File(dir, SDKConstants.OPENMRS_SERVER_PROPERTIES);
+            if(!serverProperties.exists()){       //This is for backwards compatibility with SDK 2.x and below
                 File installationProperties = new File(dir, "installation.properties");
                 if(installationProperties.exists()) {
-                    installationProperties.renameTo(properties);
+                    Server server = Server.loadServer(installationProperties);
+                    //SDK 2.x saves versions in wrong format, swapping platform version with version
+                    String platformVersion = server.getVersion();
+                    String version = server.getPlatformVersion();
+                    //case: distribution:
+                    if(platformVersion != null && version != null){
+                        server.setPlatformVersion(platformVersion);
+                        server.setVersion(version);
+                    }
+                    //case:platform
+                    else if(platformVersion != null && version == null){
+                        server.setVersion(version);
+                    } else {
+                        throw new MojoExecutionException("Installation.properties in directory "+dir.getAbsolutePath()+" has invalid format: 'openmrs.platform.version' cannot be null");
+                    }
+                    server.saveTo(serverProperties);
+                    FileUtils.deleteQuietly(installationProperties);
                 }
             }
-            return properties.exists();
+            return serverProperties.exists();
         }
 
         return false;
@@ -389,7 +406,6 @@ public class Server {
     /**
      * Get artifacts of core and all modules on server
      */
-
     public List<Artifact> getServerModules() throws MojoExecutionException {
         List<Artifact> artifacts;
         DistroProperties distroProperties = new DistroProperties(getDistroPropertiesFile());
