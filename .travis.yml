@@ -1,8 +1,15 @@
+sudo: required
+
+services:
+  - docker
 language: java
 install :
   - mvn org.openmrs.maven.plugins:openmrs-sdk-maven-plugin:setup-sdk -DbatchAnswers=n
 script:
   - mvn install
+  - mvn org.openmrs.maven.plugins:openmrs-sdk-maven-plugin:build-distro -Ddistro=referenceapplication:2.5-SNAPSHOT
+  - cd referenceapplication-2.5-SNAPSHOT
+  - docker-compose up
 deploy:
   provider: script
   script: ./deploy.sh
