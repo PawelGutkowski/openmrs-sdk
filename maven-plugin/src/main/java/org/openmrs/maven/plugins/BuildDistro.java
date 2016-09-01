@@ -103,7 +103,7 @@ public class BuildDistro extends AbstractTask {
         if(distroProperties == null) throw new IllegalArgumentException("Distro "+distro+" could not be retrieved");
         String distroName = buildDistro(targetDirectory, distroArtifact, distroProperties);
         targetDirectory.renameTo(new File(targetDirectory.getParent(), distroName));
-        wizard.showMessage("Finished!");
+        wizard.showMessage("Created distribution docker configuration in "+targetDirectory.getAbsolutePath());
     }
     
     private String buildDistro(File targetDirectory, Artifact distroArtifact, DistroProperties distroProperties) throws MojoExecutionException {

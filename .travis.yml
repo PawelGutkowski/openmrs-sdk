@@ -8,7 +8,7 @@ install :
 script:
   - mvn install -DskipTests
   - mvn org.openmrs.maven.plugins:openmrs-sdk-maven-plugin:3.2.2-SNAPSHOT:build-distro -Ddistro=referenceapplication:2.5-SNAPSHOT
-  - cd referenceapplication-2.5-SNAPSHOT
+  - cd referenceapplication-2.5-snapshot
   - docker-compose up
 deploy:
   provider: script
